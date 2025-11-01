@@ -1,3 +1,4 @@
+
 'use client'
 
 import { motion } from 'framer-motion'
@@ -11,12 +12,6 @@ export default function LandingPage() {
         <h1 className="text-3xl font-bold tracking-tight drop-shadow-md">
           Dev<span className="text-pink-300">Connect</span>
         </h1>
-        <Link
-          href="/login"
-          className="bg-white/20 border border-white/30 rounded-lg px-5 py-2 font-medium hover:bg-white/30 transition backdrop-blur-md shadow-md"
-        >
-          Giriş Yap
-        </Link>
       </header>
 
       {/* 💎 Hero Section */}
@@ -33,14 +28,14 @@ export default function LandingPage() {
         <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10">
           Projelerini paylaş, arkadaş edin, topluluklara katıl.
           <br />
-          Yazılım dünyasında görünür olmanın en eğlenceli yolu burada.
+          Nabersiniz. Dashboard
         </p>
 
       </motion.main>
 
       {/* ⚡️ Footer */}
       <footer className="text-center py-6 text-white/70 text-sm backdrop-blur-sm">
-        © {new Date().getFullYear()} DevConnect. Tüm hakları saklıdır.
+        © {new Date().getFullYear()}
       </footer>
     </div>
   )
