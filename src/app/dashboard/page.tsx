@@ -22,13 +22,13 @@ export default function LandingPage() {
         className="flex flex-1 flex-col items-center justify-center text-center px-6"
       >
         <h2 className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-lg">
-          Yazılımcılar İçin <br /> Yeni Bir <span className="text-pink-200">Bağlantı Dünyası</span>
+          Grafikerler İçin <br /> Yeni Bir <span className="text-pink-200">Bağlantı Dünyası</span>
         </h2>
 
         <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10">
-          Projelerini paylaş, arkadaş edin, topluluklara katıl.
+          KARAMAN GRAFİK
           <br />
-          Nabersiniz. Dashboard
+          Promt oluşturulur. 20 TL
         </p>
 
       </motion.main>

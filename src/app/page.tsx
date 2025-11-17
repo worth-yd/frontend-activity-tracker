@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
@@ -9,14 +9,8 @@ export default function LandingPage() {
       {/* 🔝 Navbar */}
       <header className="flex justify-between items-center px-8 py-6">
         <h1 className="text-3xl font-bold tracking-tight drop-shadow-md">
-          Dev<span className="text-pink-300">Connect</span>
+          <span className="text-pink-300">Promt Connect</span>
         </h1>
-        <Link
-          href="/login"
-          className="bg-white/20 border border-white/30 rounded-lg px-5 py-2 font-medium hover:bg-white/30 transition backdrop-blur-md shadow-md"
-        >
-          Giriş Yap
-        </Link>
       </header>
 
       {/* 💎 Hero Section */}
@@ -27,15 +21,16 @@ export default function LandingPage() {
         className="flex flex-1 flex-col items-center justify-center text-center px-6"
       >
         <h2 className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-lg">
-          Yazılımcılar İçin <br /> Yeni Bir <span className="text-pink-200">Bağlantı Dünyası</span>
+          Grafiklerler İçin <br /> Yeni Bir{" "}
+          <span className="text-pink-200">Bağlantı Dünyası</span>
         </h2>
 
         <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10">
-          Projelerini paylaş, arkadaş edin, topluluklara katıl.
+          Fotoğraflarına farklı bakış açıları eklemek ve editlemek için hazır
+          promptlar
           <br />
-          Yazılım dünyasında görünür olmanın en eğlenceli yolu burada.
+          Tasarım dünyasında görünür olmanın en eğlenceli yolu burada.
         </p>
-
       </motion.main>
 
       {/* ⚡️ Footer */}
@@ -43,5 +38,5 @@ export default function LandingPage() {
         © {new Date().getFullYear()} DevConnect. Tüm hakları saklıdır.
       </footer>
     </div>
-  )
+  );
 }
