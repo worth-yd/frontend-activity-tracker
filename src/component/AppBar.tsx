@@ -1,93 +1,62 @@
 "use client";
 
-import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, User, Menu, X } from "lucide-react";
+import { Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+function VodafoneLogo({ size = 32 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Kırmızı daire */}
+      <circle cx="100" cy="100" r="100" fill="#E60000" />
+      {/* Vodafone tırnak işareti (speechmark) */}
+      <path
+        d="M100 40C67.9 40 42 65.9 42 98C42 118.6 52.6 136.7 68.7 147.5C70.3 148.6 71 150.6 70.4 152.4L63.2 174.4C62.3 177.2 65.2 179.7 67.8 178.3L96.2 163.1C97.4 162.5 98.7 162.2 100 162.2C132.1 162.2 158 136.3 158 104.2C158 72.1 132.1 46.2 100 46.2L100 40Z"
+        fill="white"
+      />
+      <circle cx="100" cy="100" r="28" fill="#E60000" />
+    </svg>
+  );
+}
+
 export default function AppBar() {
-  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
 
   return (
     <motion.nav
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-full fixed top-0 left-0 flex items-center px-6 py-4 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-md z-50"
+      className="w-full fixed top-0 left-0 flex items-center px-6 py-3 bg-black/30 backdrop-blur-md border-b border-white/10 shadow-md z-50"
     >
-      {/* Menü container */}
-      <div className="flex justify-between w-full items-center">
-        {/* Sol taraf: Ana sayfa linki */}
-        {!isLoginPage && (
-          <Link
-            href="/"
-            className="flex items-center gap-1 text-white/90 hover:text-white transition"
-          >
-            <Home size={18} />
-            Anasayfa
-          </Link>
-        )}
+      <div className="flex justify-between w-full items-center max-w-4xl mx-auto">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3 text-white font-bold text-lg">
+          <VodafoneLogo size={36} />
+          <div className="flex flex-col leading-tight">
+            <span className="text-white font-bold text-base tracking-wide">Vodafone</span>
+            <span className="text-white/60 font-normal text-xs tracking-wider">Borç Sorgulama</span>
+          </div>
+        </Link>
 
-        {/* Sağ taraf: Login / Register */}
-        {isLoginPage ? (
+        {/* Anasayfaya dön (sadece results sayfasında göster) */}
+        {pathname !== "/" && (
           <Link
             href="/"
-            className="ml-auto text-white/90 hover:text-white transition"
+            className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors"
           >
-            Anasayfa
-          </Link>
-        ) : (
-          <Link
-            href="/login"
-            className="ml-auto flex items-center gap-1 text-white/90 hover:text-white transition"
-          >
-            <User size={18} />
-            Giriş Yap
+            <Home size={15} />
+            Ana Sayfa
           </Link>
         )}
       </div>
-
-      {/* Mobile Menu */}
-      {!isLoginPage && (
-        <div className="md:hidden ml-auto">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-white/90 hover:text-white transition"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      )}
-
-      {/* Mobile Dropdown */}
-      {isOpen && !isLoginPage && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute top-full left-0 w-full bg-white/10 backdrop-blur-md border-b border-white/20 flex flex-col items-center gap-4 py-4 md:hidden"
-        >
-          <Link
-            href="/"
-            className="flex items-center gap-1 text-white/90 hover:text-white transition"
-            onClick={() => setIsOpen(false)}
-          >
-            <Home size={18} />
-            Anasayfa
-          </Link>
-          <Link
-            href="/login"
-            className="flex items-center gap-1 text-white/90 hover:text-white transition"
-            onClick={() => setIsOpen(false)}
-          >
-            <User size={18} />
-            Giriş Yap
-          </Link>
-        </motion.div>
-      )}
     </motion.nav>
   );
 }

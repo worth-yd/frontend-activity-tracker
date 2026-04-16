@@ -1,42 +1,18 @@
-"use client";
+import QueryForm from "@/component/QueryForm";
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-
-export default function LandingPage() {
+export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600 text-white">
-      {/* 🔝 Navbar */}
-      <header className="flex justify-between items-center px-8 py-6">
-        <h1 className="text-3xl font-bold tracking-tight drop-shadow-md">
-          <span className="text-pink-300">Promt Connect</span>
+    <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
+      <div className="text-center mb-10">
+        <h1 className="text-4xl font-bold text-white mb-3">
+          TC Borç Sorgulama
         </h1>
-      </header>
-
-      {/* 💎 Hero Section */}
-      <motion.main
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="flex flex-1 flex-col items-center justify-center text-center px-6"
-      >
-        <h2 className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-lg">
-          Grafiklerler İçin <br /> Yeni Bir{" "}
-          <span className="text-pink-200">Bağlantı Dünyası</span>
-        </h2>
-
-        <p className="text-lg md:text-xl text-white/90 max-w-2xl mb-10">
-          Fotoğraflarına farklı bakış açıları eklemek ve editlemek için hazır
-          promptlar
-          <br />
-          Tasarım dünyasında görünür olmanın en eğlenceli yolu burada.
+        <p className="text-white/60 text-lg max-w-md mx-auto">
+          TC Kimlik numaranız ve kimlik bilgilerinizle borçlarınızı sorgulayın ve güvenle ödeyin.
         </p>
-      </motion.main>
+      </div>
 
-      {/* ⚡️ Footer */}
-      <footer className="text-center py-6 text-white/70 text-sm backdrop-blur-sm">
-        © {new Date().getFullYear()} DevConnect. Tüm hakları saklıdır.
-      </footer>
+      <QueryForm />
     </div>
   );
 }

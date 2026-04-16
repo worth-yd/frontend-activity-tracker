@@ -7,8 +7,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#2563eb',   // Mavi
-        secondary: '#f97316', // Turuncu
+        primary: '#E60000',   // Vodafone Kırmızı
+        secondary: '#BF0000', // Vodafone Koyu Kırmızı
       },
     },
   },
