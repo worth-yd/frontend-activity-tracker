@@ -38,9 +38,14 @@ export function AccountRow({ account, tckn, index }: AccountRowProps) {
   const { openPaymentModal, openRefundModal } = useDebt();
   const [expanded, setExpanded] = useState(false);
 
-  const hasDebt    = account.currentDebt > 0;
-  const hasHolding = account.currentHolding > 0;
-  const hasInvoices = account.invoices.length > 0;
+  const hasDebt       = account.currentDebt > 0;
+  const hasHolding    = account.currentHolding > 0;
+  const hasChangeOrder = account.hasChangeOrder ?? false;
+  // Sadece 0'dan büyük tutarlı ve CLOSED olmayan faturalar
+  const payableInvoices = account.invoices.filter(
+    (inv) => inv.amount > 0 && inv.status !== "CLOSED"
+  );
+  const hasInvoices = payableInvoices.length > 0;
 
   return (
     <motion.div
@@ -73,15 +78,45 @@ export function AccountRow({ account, tckn, index }: AccountRowProps) {
             </div>
           </div>
 
-          {hasInvoices && (
-            <button
-              onClick={() => setExpanded((v) => !v)}
-              className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs px-3 py-2 rounded-lg border border-white/10 hover:border-white/20 transition-all shrink-0"
-            >
-              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              {account.invoices.length} Fatura
-            </button>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {hasHolding && (
+              <motion.button
+                whileHover={hasChangeOrder ? {} : { scale: 1.04 }}
+                whileTap={hasChangeOrder ? {} : { scale: 0.96 }}
+                onClick={() => !hasChangeOrder && openRefundModal({ type: "account", action: "refund", account, tckn })}
+                disabled={hasChangeOrder}
+                title={hasChangeOrder ? "İade talebiniz işleme alınmıştır. En geç 5 iş günü içinde hesabınıza yatırılacaktır." : undefined}
+                className={`flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                  hasChangeOrder
+                    ? "bg-gray-600 cursor-not-allowed opacity-60"
+                    : "bg-green-700 hover:bg-green-600 text-white"
+                }`}
+              >
+                <RotateCcw size={12} />
+                İade Et
+              </motion.button>
+            )}
+            {hasDebt && (
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => openPaymentModal({ type: "account", action: "pay", account, tckn })}
+                className="flex items-center gap-1 bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+              >
+                <CreditCard size={12} />
+                Öde
+              </motion.button>
+            )}
+            {hasInvoices && (
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs px-3 py-2 rounded-lg border border-white/10 hover:border-white/20 transition-all"
+              >
+                {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {account.invoices.length} Fatura
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -97,7 +132,7 @@ export function AccountRow({ account, tckn, index }: AccountRowProps) {
           >
             <div className="px-5 py-3 space-y-1 bg-black/10">
               <p className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2">Faturalar</p>
-              {account.invoices.map((inv) => (
+              {payableInvoices.map((inv) => (
                 <div
                   key={inv.invoiceNumber}
                   className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 gap-4"

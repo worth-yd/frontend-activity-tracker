@@ -19,12 +19,15 @@ interface DebtContextType {
   queryResult: CustomerQueryResponse | null;
   tckn: string;
   operationType: OperationType | null;
+  edevletToken: string | null;
+  edevletAccountCode: number | null;
   selectedItem: SelectedItem | null;
   isPaymentModalOpen: boolean;
   isRefundModalOpen: boolean;
   setQueryData: (data: QueryFormData) => void;
   setQueryResult: (result: CustomerQueryResponse, tckn: string) => void;
   setOperationType: (op: OperationType) => void;
+  setEdevletData: (token: string, accountCode: number) => void;
   openPaymentModal: (item: SelectedItem) => void;
   closePaymentModal: () => void;
   openRefundModal: (item: SelectedItem) => void;
@@ -39,6 +42,8 @@ export function DebtProvider({ children }: { children: ReactNode }) {
   const [queryResult, setQueryResultState] = useState<CustomerQueryResponse | null>(null);
   const [tckn, setTckn] = useState<string>("");
   const [operationType, setOperationType] = useState<OperationType | null>(null);
+  const [edevletToken, setEdevletToken] = useState<string | null>(null);
+  const [edevletAccountCode, setEdevletAccountCode] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
@@ -46,6 +51,11 @@ export function DebtProvider({ children }: { children: ReactNode }) {
   const setQueryResult = (result: CustomerQueryResponse, tc: string) => {
     setQueryResultState(result);
     setTckn(tc);
+  };
+
+  const setEdevletData = (token: string, accountCode: number) => {
+    setEdevletToken(token);
+    setEdevletAccountCode(accountCode);
   };
 
   const openPaymentModal = (item: SelectedItem) => {
@@ -73,6 +83,8 @@ export function DebtProvider({ children }: { children: ReactNode }) {
     setQueryResultState(null);
     setTckn("");
     setOperationType(null);
+    setEdevletToken(null);
+    setEdevletAccountCode(null);
     setSelectedItem(null);
     setIsPaymentModalOpen(false);
     setIsRefundModalOpen(false);
@@ -85,12 +97,15 @@ export function DebtProvider({ children }: { children: ReactNode }) {
         queryResult,
         tckn,
         operationType,
+        edevletToken,
+        edevletAccountCode,
         selectedItem,
         isPaymentModalOpen,
         isRefundModalOpen,
         setQueryData,
         setQueryResult,
         setOperationType,
+        setEdevletData,
         openPaymentModal,
         closePaymentModal,
         openRefundModal,

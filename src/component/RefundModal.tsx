@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, RotateCcw, Loader2, CheckCircle2, AlertCircle, Building2, User } from "lucide-react";
 import axios from "axios";
 import { useDebt } from "@/context/DebtContext";
+import VirtualKeyboard from "@/component/VirtualKeyboard";
 
 type RefundStatus = "idle" | "loading" | "success" | "error";
 
@@ -28,18 +29,13 @@ function formatTL(amount: number): string {
   }).format(amount);
 }
 
-function formatIban(val: string): string {
-  // Sadece rakam, max 24
-  return val.replace(/\D/g, "").slice(0, 24);
-}
-
 function displayIban(raw: string): string {
   // 4'lü gruplar halinde göster: TR12 3456 7890 ...
   return raw.replace(/(.{4})/g, "$1 ").trim();
 }
 
 export default function RefundModal() {
-  const { selectedItem, isRefundModalOpen, closeRefundModal, queryResult, tckn } = useDebt();
+  const { selectedItem, isRefundModalOpen, closeRefundModal, queryResult, tckn, edevletToken } = useDebt();
 
   const [form, setForm] = useState<RefundForm>({
     name: queryResult?.fullName ?? "",
@@ -51,6 +47,20 @@ export default function RefundModal() {
   const [status, setStatus] = useState<RefundStatus>("idle");
   const [changeOrderNumber, setChangeOrderNumber] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [ibanKeyboardOpen, setIbanKeyboardOpen] = useState(false);
+  const ibanRef = useRef<HTMLDivElement>(null);
+
+  const handleIbanDigit = (digit: string) => {
+    setForm((prev) => {
+      if (prev.iban.length >= 24) return prev;
+      return { ...prev, iban: prev.iban + digit };
+    });
+    setErrors((prev) => ({ ...prev, iban: undefined }));
+  };
+
+  const handleIbanDelete = () => {
+    setForm((prev) => ({ ...prev, iban: prev.iban.slice(0, -1) }));
+  };
 
   const amount =
     selectedItem?.type === "account"
@@ -98,27 +108,22 @@ export default function RefundModal() {
     setErrorMsg("");
 
     try {
-      // TODO: Backend hazır olduğunda mock'u kaldır, şu bloğu aç:
-      // const { data } = await axios.post(
-      //   `/api/refund?accountFullName=${encodeURIComponent(queryResult?.fullName ?? "")}`,
-      //   {
-      //     accountCode,
-      //     tckn,
-      //     amount,
-      //     name: form.name,
-      //     iban: form.iban,
-      //     bankName: form.bankName,
-      //     paymentRefundType,
-      //     fileNumber,
-      //   }
-      // );
+      const { data } = await axios.post(
+        `/api/refund?accountFullName=${encodeURIComponent(queryResult?.fullName ?? "")}`,
+        {
+          accountCode,
+          tckn,
+          amount,
+          name: form.name,
+          iban: form.iban,
+          bankName: form.bankName,
+          paymentRefundType,
+          fileNumber,
+          token: edevletToken ?? undefined,
+        }
+      );
 
-      // MOCK
-      void accountCode; void tckn; void fileNumber; void paymentRefundType;
-      await new Promise((r) => setTimeout(r, 1000));
-      const data = { data: { changeOrderNumber: "CO-" + Date.now(), returnMessage: "Başarılı" } };
-
-      setChangeOrderNumber(data.data.changeOrderNumber ?? "");
+      setChangeOrderNumber(data.data?.changeOrderNumber ?? "");
       setStatus("success");
     } catch (err: unknown) {
       const msg =
@@ -137,6 +142,7 @@ export default function RefundModal() {
     setStatus("idle");
     setErrorMsg("");
     setChangeOrderNumber("");
+    setIbanKeyboardOpen(false);
     closeRefundModal();
   };
 
@@ -244,19 +250,24 @@ export default function RefundModal() {
                       <label className="text-sm font-medium text-white/80">
                         IBAN <span className="text-white/40 font-normal">(TR prefix'siz, 24 rakam)</span>
                       </label>
-                      <div className="relative">
+                      <div className="relative" ref={ibanRef}>
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm font-bold">TR</span>
                         <input
                           type="text"
-                          inputMode="numeric"
+                          readOnly
                           value={displayIban(form.iban)}
-                          onChange={(e) => {
-                            const raw = formatIban(e.target.value);
-                            setForm((prev) => ({ ...prev, iban: raw }));
-                            if (errors.iban) setErrors((prev) => ({ ...prev, iban: undefined }));
-                          }}
+                          onClick={() => setIbanKeyboardOpen((v) => !v)}
                           placeholder="00 0000 0000 0000 0000 0000"
-                          className={`${inputClass(errors.iban)} pl-10 font-mono tracking-wider`}
+                          className={`${inputClass(errors.iban)} pl-10 font-mono tracking-wider cursor-pointer ${
+                            ibanKeyboardOpen ? "border-green-500 ring-2 ring-green-500/40" : ""
+                          }`}
+                        />
+                        <VirtualKeyboard
+                          isOpen={ibanKeyboardOpen}
+                          onClose={() => setIbanKeyboardOpen(false)}
+                          onDigit={handleIbanDigit}
+                          onDelete={handleIbanDelete}
+                          anchorRef={ibanRef}
                         />
                       </div>
                       <p className="text-white/30 text-xs">{form.iban.length}/24 rakam</p>

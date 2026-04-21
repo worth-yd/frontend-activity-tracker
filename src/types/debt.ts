@@ -23,6 +23,7 @@ export interface InvoiceDto {
   invoiceNumber: string;
   amount: number;
   expiryDate: string;
+  status?: string;
 }
 
 export interface AccountDto {
@@ -32,6 +33,7 @@ export interface AccountDto {
   currentDebt: number;
   /** Alacak/iade tutarı — pozitif → iade alınacak */
   currentHolding: number;
+  hasChangeOrder?: boolean;
   invoices: InvoiceDto[];
 }
 

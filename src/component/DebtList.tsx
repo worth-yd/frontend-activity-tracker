@@ -60,15 +60,41 @@ const MOCK_RESULT: CustomerQueryResponse = {
 
 export default function DebtList() {
   const router = useRouter();
-  const { queryResult, tckn, clearAll } = useDebt();
+  const { queryResult, tckn, operationType, edevletAccountCode, clearAll } = useDebt();
 
   const result = queryResult ?? MOCK_RESULT;
   const activeTckn = tckn || "12345678901";
 
   const { fullName, totalDebt, inLegalProc, accounts, legalFiles } = result;
 
-  const hasAccounts = (accounts ?? []).length > 0;
-  const hasLegal = (legalFiles ?? []).length > 0;
+  // Borç/alacak/changeOrder yoksa gösterme — eski sistemle aynı mantık
+  const baseAccounts = (accounts ?? []).filter(
+    (a) => a.currentDebt > 0 || a.currentHolding > 0 || a.hasChangeOrder
+  );
+
+  // e-Devlet akışında operationType'a göre filtrele
+  const visibleAccounts = (() => {
+    if (operationType === "PAYMENT" && edevletAccountCode) {
+      return baseAccounts.filter((a) => a.accountId === edevletAccountCode);
+    }
+    if (operationType === "REFUND" && edevletAccountCode) {
+      return baseAccounts.filter((a) => a.accountId === edevletAccountCode);
+    }
+    if (operationType === "LEGAL_PAYMENT" || operationType === "LEGAL_REFUND") {
+      return []; // Sadece yasal dosya göster
+    }
+    return baseAccounts;
+  })();
+
+  const visibleLegal = (() => {
+    if (operationType === "PAYMENT" || operationType === "REFUND") {
+      return []; // Sadece hesap göster
+    }
+    return legalFiles ?? [];
+  })();
+
+  const hasAccounts = visibleAccounts.length > 0;
+  const hasLegal = visibleLegal.length > 0;
   const isEmpty = !hasAccounts && !hasLegal;
 
   const handleNewQuery = () => {
@@ -123,10 +149,10 @@ export default function DebtList() {
             <div className="flex items-center gap-2 px-1">
               <AlertCircle size={15} className="text-red-400" />
               <p className="text-white/60 text-sm font-medium">
-                {accounts.length} hesap kaydı
+                {visibleAccounts.length} hesap kaydı
               </p>
             </div>
-            {accounts.map((account, i) => (
+            {visibleAccounts.map((account, i) => (
               <AccountRow key={account.accountId} account={account} tckn={activeTckn} index={i} />
             ))}
           </div>
@@ -138,10 +164,10 @@ export default function DebtList() {
             <div className="flex items-center gap-2 px-1">
               <Scale size={15} className="text-orange-400" />
               <p className="text-white/60 text-sm font-medium">
-                {legalFiles.length} yasal takip dosyası
+                {visibleLegal.length} yasal takip dosyası
               </p>
             </div>
-            {legalFiles.map((file, i) => (
+            {visibleLegal.map((file, i) => (
               <LegalFileRow key={file.fileNumber} file={file} tckn={activeTckn} index={i} />
             ))}
           </div>

@@ -7,7 +7,7 @@ const MOCK_MODE = process.env.MOCK_MODE === "true";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { tckn } = body;
+    const { tckn, motherName, fatherName, birthPlace, birthDate } = body;
 
     if (tckn.length !== 11 || !/^\d+$/.test(tckn)) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
         "X-Forwarded-For": ipAddress,
       },
-      body: JSON.stringify({ tckn }),
+      body: JSON.stringify({ tckn, motherName, fatherName, birthPlace, birthDate }),
     });
 
     const data = await response.json();

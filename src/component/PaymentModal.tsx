@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CreditCard, Lock, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, CreditCard, Lock, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { useDebt } from "@/context/DebtContext";
+import VirtualKeyboard from "@/component/VirtualKeyboard";
 // import { CreditCardRequest } from "@/types/debt"; // TODO: Backend açılınca uncomment et
 
 type PaymentStatus = "idle" | "loading" | "success" | "error";
@@ -40,7 +41,7 @@ function formatTL(amount: number): string {
 }
 
 export default function PaymentModal() {
-  const { selectedItem, isPaymentModalOpen, closePaymentModal, tckn } = useDebt();
+  const { selectedItem, isPaymentModalOpen, closePaymentModal, tckn, edevletToken } = useDebt();
 
   const [form, setForm] = useState<CardForm>({
     number: "",
@@ -55,6 +56,44 @@ export default function PaymentModal() {
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [transactionId, setTransactionId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [activeKeyboard, setActiveKeyboard] = useState<"number" | "cvv" | null>(null);
+  const [showCvv, setShowCvv] = useState(false);
+
+  const numberRef = useRef<HTMLDivElement>(null);
+  const cvvRef = useRef<HTMLDivElement>(null);
+
+  const handleKeyboardDigit = (field: "number" | "cvv") => (digit: string) => {
+    setForm((prev) => {
+      if (field === "number") {
+        const raw = prev.number.replace(/\s/g, "");
+        if (raw.length >= 16) return prev;
+        const newRaw = raw + digit;
+        if (newRaw.length === 16) setActiveKeyboard(null);
+        return { ...prev, number: formatCardNumber(newRaw) };
+      }
+      if (field === "cvv") {
+        if (prev.cvv.length >= 3) return prev;
+        const newCvv = prev.cvv + digit;
+        if (newCvv.length === 3) setActiveKeyboard(null);
+        return { ...prev, cvv: newCvv };
+      }
+      return prev;
+    });
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleKeyboardDelete = (field: "number" | "cvv") => () => {
+    setForm((prev) => {
+      if (field === "number") {
+        const raw = prev.number.replace(/\s/g, "");
+        return { ...prev, number: formatCardNumber(raw.slice(0, -1)) };
+      }
+      if (field === "cvv") {
+        return { ...prev, cvv: prev.cvv.slice(0, -1) };
+      }
+      return prev;
+    });
+  };
 
   // Ödeme tutarı ve tipi selectedItem'dan türet
   const amount =
@@ -118,31 +157,28 @@ export default function PaymentModal() {
     setErrorMsg("");
 
     try {
-      // TODO: Backend hazır olduğunda mock'u kaldır, bu bloğu aç:
-      // const { data } = await axios.post("/api/payment/do-payment", {
-      //   accountCode,
-      //   tckn,
-      //   amount,
-      //   documentNumber,
-      //   paymentRefundType,
-      //   creditCard: {
-      //     number: form.number.replace(/\s/g, ""),
-      //     expirationMonth: form.month,
-      //     expirationYear: Number(form.year),
-      //     holder: form.holder.toUpperCase(),
-      //     securityCode: form.cvv,
-      //     issuer: form.issuer,
-      //   },
-      //   ytsAccounts: selectedItem.type === "legal"
-      //     ? selectedItem.file.accounts.map((a) => a.accountCode).join(",")
-      //     : undefined,
-      // });
+      const { data } = await axios.post("/api/payment/do-payment", {
+        accountCode,
+        tckn,
+        amount,
+        documentNumber,
+        paymentRefundType,
+        creditCard: {
+          number: form.number.replace(/\s/g, ""),
+          expirationMonth: form.month,
+          expirationYear: Number(form.year),
+          holder: form.holder.toUpperCase(),
+          securityCode: form.cvv,
+          issuer: form.issuer,
+        },
+        ytsAccounts:
+          selectedItem.type === "legal"
+            ? selectedItem.file.accounts.map((a) => a.accountCode).join(",")
+            : undefined,
+        token: edevletToken ?? undefined,
+      });
 
-      // MOCK: 1 saniyelik gecikme
-      await new Promise((r) => setTimeout(r, 1000));
-      const data = { data: { bankRefId: "TXN-" + Date.now(), returnMessage: "Başarılı" } };
-
-      setTransactionId(data.data.bankRefId || "");
+      setTransactionId(data.data?.bankRefId || "");
       setStatus("success");
     } catch (err: unknown) {
       const msg =
@@ -161,12 +197,10 @@ export default function PaymentModal() {
     setStatus("idle");
     setErrorMsg("");
     setTransactionId("");
+    setActiveKeyboard(null);
+    setShowCvv(false);
     closePaymentModal();
   };
-
-  // accountCode ve tckn kullanılıyor — referans tutmak için
-  void accountCode;
-  void tckn;
 
   return (
     <AnimatePresence>
@@ -247,17 +281,26 @@ export default function PaymentModal() {
                     {/* Kart Numarası */}
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-white/80">Kart Numarası</label>
-                      <div className="relative">
+                      <div className="relative" ref={numberRef}>
                         <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
                         <input
                           type="text"
-                          inputMode="numeric"
+                          readOnly
                           value={form.number}
-                          onChange={setField("number", formatCardNumber)}
+                          onClick={() => setActiveKeyboard((v) => v === "number" ? null : "number")}
                           placeholder="0000 0000 0000 0000"
-                          className={`w-full pl-9 pr-4 py-2.5 rounded-lg bg-white/10 border text-white placeholder-white/30 font-mono tracking-wider focus:outline-none focus:ring-2 transition-all ${
-                            errors.number ? "border-red-400 focus:ring-red-400/40" : "border-white/20 focus:ring-red-500/40 focus:border-red-500"
+                          className={`w-full pl-9 pr-4 py-2.5 rounded-lg bg-white/10 border text-white placeholder-white/30 font-mono tracking-wider focus:outline-none focus:ring-2 transition-all cursor-pointer ${
+                            activeKeyboard === "number"
+                              ? "border-red-500 ring-2 ring-red-500/40"
+                              : errors.number ? "border-red-400" : "border-white/20"
                           }`}
+                        />
+                        <VirtualKeyboard
+                          isOpen={activeKeyboard === "number"}
+                          onClose={() => setActiveKeyboard(null)}
+                          onDigit={handleKeyboardDigit("number")}
+                          onDelete={handleKeyboardDelete("number")}
+                          anchorRef={numberRef}
                         />
                       </div>
                       {errors.number && <p className="text-red-400 text-xs">{errors.number}</p>}
@@ -336,17 +379,35 @@ export default function PaymentModal() {
                       {/* CVV */}
                       <div className="space-y-1 col-span-2">
                         <label className="text-sm font-medium text-white/80">CVV</label>
-                        <input
-                          type="password"
-                          inputMode="numeric"
-                          maxLength={3}
-                          value={form.cvv}
-                          onChange={setField("cvv", (v) => v.replace(/\D/g, "").slice(0, 3))}
-                          placeholder="•••"
-                          className={`w-full px-4 py-2.5 rounded-lg bg-white/10 border text-white placeholder-white/30 font-mono text-center focus:outline-none focus:ring-2 transition-all ${
-                            errors.cvv ? "border-red-400 focus:ring-red-400/40" : "border-white/20 focus:ring-red-500/40 focus:border-red-500"
-                          }`}
-                        />
+                        <div className="relative" ref={cvvRef}>
+                          <input
+                            type="text"
+                            readOnly
+                            value={showCvv ? form.cvv : "•".repeat(form.cvv.length)}
+                            onClick={() => setActiveKeyboard((v) => v === "cvv" ? null : "cvv")}
+                            placeholder="•••"
+                            className={`w-full px-4 pr-10 py-2.5 rounded-lg bg-white/10 border text-white placeholder-white/30 font-mono text-center transition-all cursor-pointer ${
+                              activeKeyboard === "cvv"
+                                ? "border-red-500 ring-2 ring-red-500/40"
+                                : errors.cvv ? "border-red-400" : "border-white/20"
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => setShowCvv((v) => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                          >
+                            {showCvv ? <EyeOff size={15} /> : <Eye size={15} />}
+                          </button>
+                          <VirtualKeyboard
+                            isOpen={activeKeyboard === "cvv"}
+                            onClose={() => setActiveKeyboard(null)}
+                            onDigit={handleKeyboardDigit("cvv")}
+                            onDelete={handleKeyboardDelete("cvv")}
+                            anchorRef={cvvRef}
+                          />
+                        </div>
                         {errors.cvv && <p className="text-red-400 text-xs">{errors.cvv}</p>}
                       </div>
                     </div>
