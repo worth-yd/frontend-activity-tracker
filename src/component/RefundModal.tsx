@@ -248,7 +248,7 @@ export default function RefundModal() {
                     {/* IBAN */}
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-white/80">
-                        IBAN <span className="text-white/40 font-normal">(TR prefix'siz, 24 rakam)</span>
+                        IBAN <span className="text-white/40 font-normal">(TR prefix&apos;siz, 24 rakam)</span>
                       </label>
                       <div className="relative" ref={ibanRef}>
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm font-bold">TR</span>
@@ -316,7 +316,7 @@ export default function RefundModal() {
                     </button>
 
                     <p className="text-white/30 text-xs text-center">
-                      İade tutarı belirtilen IBAN'a aktarılacaktır.
+                      İade tutarı belirtilen IBAN&apos;a aktarılacaktır.
                     </p>
                   </form>
                 )}

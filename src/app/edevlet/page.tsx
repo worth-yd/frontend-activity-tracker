@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, AlertCircle, ShieldCheck } from "lucide-react";
@@ -10,7 +10,6 @@ import { OperationType } from "@/types/debt";
 
 type PageState = "loading" | "error";
 
-// e-Devlet opType parametresi → OperationType dönüşümü
 function parseOpType(raw: string | null): OperationType | null {
   const map: Record<string, OperationType> = {
     Query: "QUERY",
@@ -18,7 +17,6 @@ function parseOpType(raw: string | null): OperationType | null {
     Refund: "REFUND",
     LegalPayment: "LEGAL_PAYMENT",
     LegalRefund: "LEGAL_REFUND",
-    // Büyük/küçük harf toleransı
     QUERY: "QUERY",
     PAYMENT: "PAYMENT",
     REFUND: "REFUND",
@@ -28,7 +26,7 @@ function parseOpType(raw: string | null): OperationType | null {
   return raw ? (map[raw] ?? null) : null;
 }
 
-export default function EdevletPage() {
+function EdevletContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setQueryResult, setOperationType, setEdevletData } = useDebt();
@@ -126,5 +124,13 @@ export default function EdevletPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function EdevletPage() {
+  return (
+    <Suspense>
+      <EdevletContent />
+    </Suspense>
   );
 }
