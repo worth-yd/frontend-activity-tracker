@@ -175,12 +175,12 @@ export default function QueryForm() {
   };
 
   const inputClass = (err?: string) =>
-    `w-full px-4 py-2.5 rounded-lg bg-white/10 border text-white placeholder-white/30 focus:outline-none focus:ring-2 transition-all ${
+    `w-full px-3 py-1.5 rounded-lg bg-white/10 border text-white text-sm placeholder-white/30 focus:outline-none focus:ring-2 transition-all ${
       err ? "border-red-400 focus:ring-red-400/40" : "border-white/20 focus:ring-red-500/40 focus:border-red-500"
     }`;
 
   const iconInputClass = (err?: string) =>
-    `w-full pl-9 pr-4 py-2.5 rounded-lg bg-white/10 border text-white placeholder-white/30 focus:outline-none focus:ring-2 transition-all ${
+    `w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/10 border text-white text-sm placeholder-white/30 focus:outline-none focus:ring-2 transition-all ${
       err ? "border-red-400 focus:ring-red-400/40" : "border-white/20 focus:ring-red-500/40 focus:border-red-500"
     }`;
 
@@ -196,19 +196,19 @@ export default function QueryForm() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="w-full max-w-lg mx-auto"
     >
-      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-500/20 border border-red-400/30 mb-4">
-            <Search className="text-red-400" size={28} />
+      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 shadow-2xl">
+        <div className="mb-4 text-center">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-500/20 border border-red-400/30 mb-2">
+            <Search className="text-red-400" size={20} />
           </div>
-          <h2 className="text-2xl font-bold text-white">Borç Sorgulama</h2>
-          <p className="text-white/50 text-sm mt-1">Bilgilerinizi eksiksiz doldurunuz</p>
+          <h2 className="text-xl font-bold text-white">Borç Sorgulama</h2>
+          <p className="text-white/50 text-xs mt-0.5">Bilgilerinizi eksiksiz doldurunuz</p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-3">
           {/* TC Kimlik No */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-white/80">TC Kimlik No</label>
+          <div>
+            <label className="block text-xs font-medium text-white/80 mb-1">TC Kimlik No</label>
             <input
               type="text"
               inputMode="numeric"
@@ -221,8 +221,8 @@ export default function QueryForm() {
           </div>
 
           {/* Anne Adı */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-white/80">Anne Adı</label>
+          <div>
+            <label className="block text-xs font-medium text-white/80 mb-1">Anne Adı</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
               <input
@@ -237,8 +237,8 @@ export default function QueryForm() {
           </div>
 
           {/* Baba Adı */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-white/80">Baba Adı</label>
+          <div>
+            <label className="block text-xs font-medium text-white/80 mb-1">Baba Adı</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
               <input
@@ -253,8 +253,8 @@ export default function QueryForm() {
           </div>
 
           {/* Doğum Yeri */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-white/80">Doğum Yeri</label>
+          <div>
+            <label className="block text-xs font-medium text-white/80 mb-1">Doğum Yeri</label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
               <input
@@ -269,8 +269,8 @@ export default function QueryForm() {
           </div>
 
           {/* Doğum Tarihi — Gün / Ay / Yıl */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-white/80">Doğum Tarihi</label>
+          <div>
+            <label className="block text-xs font-medium text-white/80 mb-1">Doğum Tarihi</label>
             <div className="grid grid-cols-3 gap-2">
               <input
                 type="text"
@@ -285,7 +285,7 @@ export default function QueryForm() {
                 ref={ayRef}
                 value={form.ay}
                 onChange={set("ay")}
-                className={`w-full px-3 py-2.5 rounded-lg bg-white/10 border text-white focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full px-2 py-1.5 rounded-lg bg-white/10 border text-white text-sm focus:outline-none focus:ring-2 transition-all ${
                   errors.dogumTarihi ? "border-red-400 focus:ring-red-400/40" : "border-white/20 focus:ring-red-500/40 focus:border-red-500"
                 }`}
               >
@@ -322,7 +322,7 @@ export default function QueryForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-lg bg-red-600 hover:bg-red-500 disabled:bg-red-600/50 text-white font-semibold transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:bg-red-600/50 text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 mt-1"
           >
             {loading ? (
               <>
