@@ -15,6 +15,7 @@ function parseOpType(raw: string | null): OperationType | null {
     Query: "QUERY",
     Payment: "PAYMENT",
     Refund: "REFUND",
+    Legal: "LEGAL_PAYMENT",
     LegalPayment: "LEGAL_PAYMENT",
     LegalRefund: "LEGAL_REFUND",
     QUERY: "QUERY",
